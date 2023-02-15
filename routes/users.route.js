@@ -1,5 +1,3 @@
-// routes/users.route.js
-
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const { Users, UserInfos } = require("../models");
@@ -11,7 +9,7 @@ router.post("/signup", async (req, res) => {
     req.body;
   //조건식
   try {
-    const rex = /[a-z][A-Z][0-9]/gi;
+    const rex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     const nicknameCheck = rex.test(nickname);
     const isExistUser = await Users.findOne({ where: { nickname } });
     if (!nicknameCheck || nickname.length < 3) {

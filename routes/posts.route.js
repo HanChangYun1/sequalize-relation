@@ -1,12 +1,9 @@
-// routes/posts.route.js
-
 const express = require("express");
 const { Posts } = require("../models");
 const { Op } = require("sequelize");
 const authMiddleware = require("../middlewares/auth-middleware");
 const router = express.Router();
 
-// 게시글 생성
 router.post("/posts", authMiddleware, async (req, res) => {
   const { userId } = res.locals.user;
   const { title, content } = req.body;
@@ -38,7 +35,6 @@ router.post("/posts", authMiddleware, async (req, res) => {
   }
 });
 
-// 게시글 목록 조회
 router.get("/posts", async (req, res) => {
   try {
     const posts = await Posts.findAll({
@@ -52,7 +48,6 @@ router.get("/posts", async (req, res) => {
   }
 });
 
-// 게시글 상세 조회
 router.get("/posts/:postId", async (req, res) => {
   const { postId } = req.params;
   try {
@@ -61,9 +56,9 @@ router.get("/posts/:postId", async (req, res) => {
       where: { postId },
     });
 
-    // if (!post) {
-    //   return res.status(404).json({ message: "게시글이 존재하지 않습니다." });
-    // }
+    if (!post) {
+      return res.status(404).json({ message: "게시글이 존재하지 않습니다." });
+    }
 
     return res.status(200).json({ data: post });
   } catch (error) {
@@ -71,7 +66,6 @@ router.get("/posts/:postId", async (req, res) => {
   }
 });
 
-// 게시글 수정
 router.put("/posts/:postId", authMiddleware, async (req, res) => {
   const { postId } = req.params;
   const { userId } = res.locals.user;
@@ -92,7 +86,7 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
         .status(412)
         .json({ message: "게시글 내용의 형식이 일치하지 않습니다." });
     }
-    // 게시글을 조회합니다.
+
     const post = await Posts.findOne({ where: { postId } });
 
     if (!post) {
@@ -101,20 +95,14 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
       return res.status(401).json({ message: "권한이 없습니다." });
     }
 
-    // 게시글의 권한을 확인하고, 게시글을 수정합니다.
-    const updatePost = await Posts.update(
-      { title, content }, // title과 content 컬럼을 수정합니다.
+    await Posts.update(
+      { title, content },
       {
         where: {
           [Op.and]: [{ postId }, { UserId: userId }],
         },
       }
     );
-    if (post === updatePost) {
-      return res
-        .status(401)
-        .json({ message: "게시글이 정상적으로 수정되지 않았습니다." });
-    }
 
     return res.status(200).json({ data: "게시글이 수정되었습니다." });
   } catch (error) {
@@ -122,13 +110,11 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
   }
 });
 
-// 게시글 삭제
 router.delete("/posts/:postId", authMiddleware, async (req, res) => {
   const { postId } = req.params;
   const { userId } = res.locals.user;
 
   try {
-    // 게시글을 조회합니다.
     const post = await Posts.findOne({ where: { postId } });
 
     if (!post) {
@@ -137,7 +123,6 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
       return res.status(401).json({ message: "권한이 없습니다." });
     }
 
-    // 게시글의 권한을 확인하고, 게시글을 삭제합니다.
     await Posts.destroy({
       where: {
         [Op.and]: [{ postId }, { UserId: userId }],

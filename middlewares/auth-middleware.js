@@ -1,5 +1,3 @@
-// middlewares/auth-middleware.js
-
 const jwt = require("jsonwebtoken");
 const { Users } = require("../models");
 
@@ -7,7 +5,7 @@ module.exports = async (req, res, next) => {
   try {
     const { authorization } = req.cookies;
     const [tokenType, token] = authorization.split(" ");
-    //쿠키가 없을때
+
     if (tokenType !== "Bearer") {
       return res
         .status(401)
